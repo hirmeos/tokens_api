@@ -1,0 +1,29 @@
+version: "3.5"
+
+services:
+  tokens_db:
+    image: openbookpublishers/tokens_db
+    container_name: "tokens_db"
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - ./config/db.env
+
+  tokens_api:
+    image: openbookpublishers/tokens_api
+    container_name: "tokens_api"
+    restart: unless-stopped
+    ports:
+      - 8282:8080
+    environment:
+      - DB_HOST=tokens_db
+    env_file:
+      - ./config/api.env
+      - ./config/db.env
+    depends_on:
+      - tokens_db
+
+volumes:
+  db:
