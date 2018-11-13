@@ -142,5 +142,5 @@ class Token(object):
             raise Error(FORBIDDEN)
         except jwt.ExpiredSignatureError:
             raise Error(UNAUTHORIZED, msg="Signature expired.")
-        except AssertionError, jwt.InvalidTokenError:
+        except (AssertionError, jwt.InvalidTokenError):
             raise Error(UNAUTHORIZED, msg="Invalid token.")
