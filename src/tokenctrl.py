@@ -9,7 +9,7 @@ web.config.debug = debug_mode()
 
 
 class TokenController(object):
-    """Handles authentication tokens"""
+    """Handle authentication tokens"""
 
     @json_response
     @api_response

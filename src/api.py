@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Identifier Translator JSON API. Simple web.py based API to a
-PostgreSQL database that runs on port 8080.
+JWT issuing API for authentication in multiple services.
+Simple web.py based API to a PostgreSQL database that runs on port 8080.
 
 usage: python api.py
 
-(c) Javier Arias, Open Book Publishers, March 2018
+(c) Javier Arias, Open Book Publishers, August 2018
 Use of this software is governed by the terms of the MIT license
 
 Dependencies:
@@ -48,7 +48,7 @@ except Exception as error:
 
 
 def api_response(fn):
-    """Decorator to provided consistency in all responses"""
+    """Decorator to provide consistency in all responses"""
     def response(self, *args, **kw):
         data  = fn(self, *args, **kw)
         count = len(data)
@@ -74,7 +74,7 @@ def json_response(fn):
 
 
 def check_token(fn):
-    """Decorator to act as middleware, checking entication token"""
+    """Decorator to act as middleware, checking authentication token"""
     def response(self, *args, **kw):
         intoken = get_token_from_header()
         token = Token(intoken)
