@@ -1,7 +1,7 @@
 import web
-from aux import logger_instance, debug_mode, is_valid_email
+from aux import logger_instance, debug_mode, is_valid_email, is_uri
 from api import json, json_response, api_response, check_token
-from errors import Error, BADPARAMS, NOTALLOWED, FATAL
+from errors import Error, BADPARAMS, NOTALLOWED
 from models import Account
 
 logger = logger_instance(__name__)
@@ -9,7 +9,7 @@ web.config.debug = debug_mode()
 
 
 class AccountController(object):
-    """Handles authentication tokens"""
+    """Handles user accounts"""
 
     def GET(self, name):
         raise Error(NOTALLOWED)
@@ -18,23 +18,25 @@ class AccountController(object):
     @api_response
     @check_token
     def POST(self, name):
-        """Login - obtain a token"""
+        """Create an account"""
         logger.debug(web.data())
 
-        data   = json.loads(web.data())
-        email  = data.get('email')
+        try:
+            data = json.loads(web.data().decode('utf-8'))
+        except json.decoder.JSONDecodeError:
+            raise Error(BADPARAMS, msg="Could not decode JSON.")
+        account_id = data.get('account_id')
+        email = data.get('email')
         passwd = data.get('password')
         name = data.get('name')
         surname = data.get('surname')
         authority = data.get('authority')
 
-        try:
-            assert passwd and name and surname
-        except AssertionError:
+        if not passwd or not name or not surname:
             raise Error(BADPARAMS)
 
-        account = AccountController.create_acccount(email, passwd, name,
-                                                    surname, authority)
+        account = AccountController.create_acccount(email, passwd, account_id,
+                                                    name, surname, authority)
 
         account = account.__dict__
         del account['password']
@@ -42,19 +44,17 @@ class AccountController(object):
         return [account]
 
     @staticmethod
-    def create_account(email, password, name, surname, authority='user'):
-        try:
-            assert email and is_valid_email(email)
-        except AssertionError:
+    def create_account(email, password, account_id, name,
+                       surname, authority='user'):
+        if not email or not is_valid_email(email):
             raise Error(BADPARAMS, msg="Invalid email provided.")
-        try:
-            uuid = Account.generate_uuid()
-            account = Account(email, password, uuid, name, surname, authority)
-            account.save()
-        except Exception as e:
-            logger.error(e)
-            raise Error(FATAL)
-        return account
+        if not account_id or not is_uri(account_id):
+            raise Error(BADPARAMS,
+                        msg="Invalid account_id provided. Not a URI")
+
+        acct = Account(email, password, account_id, name, surname, authority)
+        acct.save()
+        return acct
 
     def PUT(self, name):
         raise Error(NOTALLOWED)
