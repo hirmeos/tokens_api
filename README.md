@@ -14,7 +14,7 @@ docker exec -it tokens_api python
 Then call the `create_account()` method in `AccountController()`:
 ```
 from api import *
-accountctrl.AccountController.create_account("email@obp.com", "secure_password", "Name", "Surname", "admin")
+accountctrl.AccountController.create_account("email@obp.com", "acct:user@domain", "secure_password", "Name", "Surname", "admin")
 ```
 
 ## Auth tokens
