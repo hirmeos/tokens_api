@@ -42,7 +42,10 @@ class TokenController(object):
         """Login - obtain a token"""
         logger.debug(web.data())
 
-        data   = json.loads(web.data())
+        try:
+            data = json.loads(web.data().decode('utf-8'))
+        except json.decoder.JSONDecodeError:
+            raise Error(BADPARAMS, msg="Could not decode JSON.")
         email  = data.get('email')
         passwd = data.get('password')
 

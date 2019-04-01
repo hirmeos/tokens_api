@@ -1,29 +1,29 @@
 import jwt
-import uuid
 import datetime
 import psycopg2
-from aux import logger_instance
+from pbkdf2 import crypt
+from aux import logger_instance, is_uri
 from api import db, TOKEN_LIFETIME, SECRET_KEY, PBKDF2_ITERATIONS
 from errors import Error, FATAL, FORBIDDEN, UNAUTHORIZED
-from pbkdf2 import crypt
 
 logger = logger_instance(__name__)
 
 
 class Account(object):
     """API authentication accounts"""
-    def __init__(self, email, password, uuid='', name='', surname='',
+    def __init__(self, email, password, account_id='', name='', surname='',
                  authority='user'):
         self.email     = email
         self.password  = password
-        self.id        = uuid
+        self.id        = account_id
         self.name      = name
         self.surname   = surname
         self.authority = authority
 
     def save(self):
         try:
-            assert self.hash
+            if not bool(self.hash):
+                raise AttributeError
         except AttributeError:
             self.hash_password()
 
@@ -73,26 +73,14 @@ class Account(object):
         self.authority = atts['authority']
 
     @staticmethod
-    def generate_uuid():
-        return str(uuid.uuid4())
-
-    @staticmethod
-    def is_uuid(input_uuid):
-        try:
-            uuid.UUID(input_uuid)
-            return True
-        except ValueError:
-            return False
-
-    @staticmethod
     def get_from_email(email):
         options = dict(email=email)
         return db.select('account', options, where="email = $email")
 
     @staticmethod
-    def get_from_id(uuid):
-        params = {'uuid': uuid}
-        q = '''SELECT * FROM account WHERE account_id = $uuid;'''
+    def get_from_id(account_id):
+        params = {'account_id': account_id}
+        q = '''SELECT * FROM account WHERE account_id = $account_id;'''
         try:
             return db.query(q, params)
         except (Exception, psycopg2.DatabaseError) as error:
@@ -137,7 +125,8 @@ class Token(object):
         try:
             payload = jwt.decode(self.token, SECRET_KEY)
             self.update_from_payload(payload)
-            assert Account.is_uuid(self.sub)
+            if not is_uri(self.sub):
+                raise AssertionError
         except jwt.exceptions.DecodeError:
             raise Error(FORBIDDEN)
         except jwt.ExpiredSignatureError:
