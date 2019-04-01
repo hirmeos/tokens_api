@@ -1,5 +1,5 @@
 # JWT API
-[![Build Status](https://travis-ci.org/hirmeos/tokens_api.svg?branch=master)](https://travis-ci.org/hirmeos/tokens_api)
+[![Build Status](https://travis-ci.org/hirmeos/tokens_api.svg?branch=master)](https://travis-ci.org/hirmeos/tokens_api) [![Release](https://img.shields.io/github/release/hirmeos/tokens_api.svg?colorB=58839b)](https://github.com/hirmeos/tokens_api/releases) [![License](https://img.shields.io/github/license/hirmeos/tokens_api.svg?colorB=ff0000)](https://github.com/hirmeos/tokens_api/blob/master/LICENSE)
 
 
 ## Create user account
