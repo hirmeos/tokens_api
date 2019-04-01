@@ -4,6 +4,7 @@
 import re
 import os
 import logging
+from urllib.parse import urlparse
 
 
 def debug_mode():
@@ -20,3 +21,7 @@ def logger_instance(name):
 def is_valid_email(email):
     check_email = re.compile(r"[^@]+@[^@]+\.[^@]+")
     return check_email.match(email) is not None
+
+
+def is_uri(input_uri):
+    return isinstance(input_uri, str) and bool(urlparse(input_uri).scheme)
